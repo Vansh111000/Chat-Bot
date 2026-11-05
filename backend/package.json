@@ -7,13 +7,16 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "dev":   "tsc --noEmit && tsx --watch src/server.ts",
+    "dev": "tsc --noEmit && tsx --watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js"
   },
   "dependencies": {
+    "@google/genai": "^2.32.0",
+    "@neondatabase/serverless": "^1.2.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
+    "drizzle-orm": "^0.45.4",
     "express": "^5.3.0",
     "stream-chat": "^9.54.4"
   },
@@ -21,6 +24,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.6",
+    "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   }
