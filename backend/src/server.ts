@@ -20,7 +20,7 @@ interface CustomUser {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({extended:true}));
 
 // Initializing chat client
 const chatClient = StreamChat.getInstance(
@@ -101,10 +101,45 @@ try {
         return res.status(404).json({error: "User not found in database. Please register first."});
     }
 
-   const response = await ai.interactions.create({
-    model:'gemini-3.5-flash-lite',
-    input:message+" Give out just simple message without any special characters."
-   })
+    // Chat history context
+    const chatHistory = await db
+        .select()
+        .from(chat)
+        .where(eq(chat.userId, userId))
+        .orderBy(chat.createdAt)
+        .limit(10); 
+
+    // formatting chat history for gemini context
+    const conversation = chatHistory.flatMap((chat) => [
+        {
+            type: "user_input",
+            content: [
+                { type: "text", text: chat.message }
+            ]
+        },
+        {
+            type: "model_output",
+            content: [
+                { type: "text", text: chat.reply }
+            ]
+        }
+    ]);
+
+
+
+    // add latest user messages to the conversation.
+    conversation.push({
+        type: "user_input",
+        content: [
+            { type: "text", text: message }
+        ]
+    });
+
+    const response = await ai.interactions.create({
+        model: "gemini-3.5-flash-lite",
+        store:false,
+        input: conversation
+    });
 
     const aiMessage:string = response?.output_text ?? "no response from AI ";
     const modifiedRes = aiMessage.replace(/[*]/g, ' ')
@@ -129,7 +164,7 @@ try {
 });
 
 // getting the chat history for the user
-app.get('/get-messages', async (req: Request, res:Response): Promise<any> => {
+app.post('/get-messages', async (req: Request, res:Response): Promise<any> => {
     const {userId} = req.body;
 
     if(!userId){
