@@ -112,15 +112,15 @@ try {
     // formatting chat history for gemini context
     const conversation = chatHistory.flatMap((chat) => [
         {
-            type: "user_input",
+            type: "user_input" as const,
             content: [
-                { type: "text", text: chat.message }
+                { type: "text" as const, text: chat.message }
             ]
         },
         {
-            type: "model_output",
+            type: "model_output" as const,
             content: [
-                { type: "text", text: chat.reply }
+                { type: "text" as const, text: chat.reply }
             ]
         }
     ]);
@@ -129,9 +129,9 @@ try {
 
     // add latest user messages to the conversation.
     conversation.push({
-        type: "user_input",
+        type: "user_input" as const,
         content: [
-            { type: "text", text: message }
+            { type: "text" as const , text: message }
         ]
     });
 
